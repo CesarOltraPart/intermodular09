@@ -10,13 +10,37 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v4
+      
       - name: Modifica fitxer md
         run: |
           echo "- ${{ github.actor }} modifica el repo ${{ github.repository }} : $(date)" >> README.md
+      
+      - name: Modifica fitxer html
+        run: |
+          # Comprova si el fitxer index.html existeix
+          if [ -f "index.html" ]; then
+            # Modifica el contingut del fitxer index.html
+            sed -i "s/<body>/<body>\n  <!-- Modificat per ${{ github.actor }} el $(date) -->/" index.html
+            echo "Fitxer index.html modificat"
+          else
+            echo "El fitxer index.html no existeix, creant-lo..."
+            echo "<!DOCTYPE html>
+            <html>
+            <head>
+                <title>Pàgina modificada</title>
+            </head>
+            <body>
+                <!-- Modificat per ${{ github.actor }} el $(date) -->
+                <h1>Hola Món!</h1>
+                <p>Aquesta pàgina ha estat modificada per ${{ github.actor }}</p>
+            </body>
+            </html>" > index.html
+          fi
+      
       - name: commit i push
         run: |
           git config --global user.name "${{ github.actor }}"
           git config --global user.email "${{ github.actor }}@users.noreply.github.com"
           git add --all
-          git commit -m "Afegit contingut a README.md"
+          git commit -m "Afegit contingut a README.md i modificat index.html"
           git push
